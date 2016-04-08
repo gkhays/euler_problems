@@ -5,6 +5,7 @@ import java.awt.Color;
 import java.awt.GridLayout;
 import java.awt.Image;
 import java.awt.Insets;
+import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.image.BufferedImage;
 import java.io.InputStream;
@@ -24,23 +25,31 @@ import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 
+import org.slg.chess.KnightsTour;
+
 // https://stackoverflow.com/questions/21077322/create-a-chess-board-with-jpanel
 // https://stackoverflow.com/questions/21142686/making-a-robust-resizable-swing-chess-gui
 public class ChessBoard {
 
-	private final JPanel chessPanel = new JPanel(new BorderLayout(3, 3));
-    private JButton[][] chessBoardSquares = new JButton[8][8];
-    private Image[][] chessPieceImages = new Image[2][6];
-    private JPanel chessBoard;
-    private final JLabel message = new JLabel(
-            "The Knight is ready to tour!");
-    private static final String COLS = "ABCDEFGH";
+    public static final int BLACK = 0, WHITE = 1;
     public static final int QUEEN = 0, KING = 1,
             ROOK = 2, KNIGHT = 3, BISHOP = 4, PAWN = 5;
     public static final int[] STARTING_ROW = {
         ROOK, KNIGHT, BISHOP, KING, QUEEN, BISHOP, KNIGHT, ROOK
     };
-    public static final int BLACK = 0, WHITE = 1;
+
+    private static final String COLS = "ABCDEFGH";
+    
+	private final JPanel chessPanel = new JPanel(new BorderLayout(3, 3));
+    private JButton[][] chessBoardSquares = new JButton[8][8];
+    private Image[][] chessPieceImages = new Image[2][6];
+    private JPanel chessBoard;
+    private final JLabel message = new JLabel(
+            "The board is ready.");
+    
+    private int x = 0, y = 0;
+    private int moveNumber = 1;
+    private KnightsTour kt = new KnightsTour();
     
 	public static void main(String[] args) {
 		Runnable r = new Runnable() {
@@ -76,16 +85,19 @@ public class ChessBoard {
         return chessPanel;
     }
 
+	/**
+	 * Get images for each individual chess piece.
+	 */
 	private final void createImages() {
 		try {
 			InputStream in = ChessBoard.class
 					.getResourceAsStream("/chess-pieces.png");
 			BufferedImage bi = ImageIO.read(in);
-			for (int ii = 0; ii < 2; ii++) {
-				for (int jj = 0; jj < 6; jj++) {
-					chessPieceImages[ii][jj] = bi.getSubimage(
+			for (int i = 0; i < 2; i++) {
+				for (int j = 0; j < 6; j++) {
+					chessPieceImages[i][j] = bi.getSubimage(
 					// jj * 64, ii * 64, 64, 64);
-							jj * 64, ii * 64, 48, 48);
+							j * 64, i * 64, 48, 48);
 				}
 			}
 		} catch (Exception e) {
@@ -104,17 +116,56 @@ public class ChessBoard {
 		
 		// TODO: Provide a single implemented action handler instead of multiple
 		// anonymous, inner ones.
-		Action startAction = new AbstractAction("Start") {
-			
+		Action startAction = new AbstractAction("Start") {			
 			private static final long serialVersionUID = 1L;
 
 			@Override
             public void actionPerformed(ActionEvent e) {
-            	placeAllStartingPieces();
+            	//placeAllStartingPieces();
+				startKnightsTour();
             }
         };
-        Action exitAction = new AbstractAction("Exit") {
+		Action resetAction = new AbstractAction("Reset") {
+			private static final long serialVersionUID = 1L;
 
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// TODO: This isn't clearing the chess board. :(
+				System.out.println("Should be clearing the board...");
+				fillBoard();
+				// JButton b = new JButton();
+				// b.setBackground(Color.WHITE);
+				// b.setIcon(new ImageIcon(new BufferedImage(64, 64,
+				// BufferedImage.TYPE_INT_ARGB)));
+				// chessBoardSquares[0][0] = b;
+				//chessBoard.add(chessBoardSquares[0][0]);
+				message.setText("Ready to go.");
+				chessBoardSquares[0][0].setIcon(new ImageIcon(
+						chessPieceImages[BLACK][STARTING_ROW[0]]));
+				chessBoard.revalidate();
+				chessBoard.repaint();
+			}
+		};
+        Action nextAction = new AbstractAction("Next") {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				Point p = kt.nextMove(x, y, moveNumber);
+				// TODO: walk_board is recursive for a reason... We get 32 moves then crash.
+				int xIndex = new Double(p.getX()).intValue();
+				int yIndex = new Double(p.getY()).intValue();
+				message.setText(String.format(
+						"The Knight moved to (%d, %d). Move #%d.", xIndex,
+						yIndex, moveNumber));
+				chessBoardSquares[xIndex][yIndex].setIcon(new ImageIcon(
+						chessPieceImages[BLACK][STARTING_ROW[1]]));
+				moveNumber++;
+				x = xIndex;
+				y = yIndex;
+			}
+        };
+        Action exitAction = new AbstractAction("Exit") {
 			private static final long serialVersionUID = 1L;
 
 			@Override
@@ -125,8 +176,10 @@ public class ChessBoard {
         };
 		
         tools.add(startAction);
-        tools.add(exitAction);
+        tools.add(resetAction);
+        tools.add(nextAction);
 		tools.addSeparator();
+        tools.add(exitAction);
 		tools.addSeparator();
 		tools.add(message);
 
@@ -139,8 +192,8 @@ public class ChessBoard {
 		fillBoard();
 
 		chessBoard.add(new JLabel(""));
-		for (int ii = 0; ii < 8; ii++) {
-			chessBoard.add(new JLabel(COLS.substring(ii, ii + 1),
+		for (int i = 0; i < 8; i++) {
+			chessBoard.add(new JLabel(COLS.substring(i, i + 1),
 					SwingConstants.CENTER));
 		}
 
@@ -160,12 +213,12 @@ public class ChessBoard {
 	}
 
 	/**
-	 * 
+	 * Draws each of the colored squares on the chessboard.
 	 */
 	private void fillBoard() {
 		Insets buttonMargin = new Insets(0, 0, 0, 0);
-		for (int ii = 0; ii < chessBoardSquares.length; ii++) {
-			for (int jj = 0; jj < chessBoardSquares[ii].length; jj++) {
+		for (int i = 0; i < chessBoardSquares.length; i++) {
+			for (int j = 0; j < chessBoardSquares[i].length; j++) {
 				JButton b = new JButton();
 				b.setMargin(buttonMargin);
 				
@@ -174,40 +227,46 @@ public class ChessBoard {
 				ImageIcon icon = new ImageIcon(new BufferedImage(64, 64,
 						BufferedImage.TYPE_INT_ARGB));
 				b.setIcon(icon);
-				if (((jj % 2 == 1) && (ii % 2 == 1))
-						|| ((jj % 2 == 0) && (ii % 2 == 0))) {
+				if (((j % 2 == 1) && (i % 2 == 1))
+						|| ((j % 2 == 0) && (i % 2 == 0))) {
 					b.setBackground(Color.WHITE);
 				} else {
 					b.setBackground(Color.BLACK);
 				}
-				chessBoardSquares[jj][ii] = b;
+				chessBoardSquares[j][i] = b;
 			}
 		}
 	}	
 	
 	private final void placeAllStartingPieces() {
 		message.setText("Make your move!");
-        // set up the black pieces
-        for (int ii = 0; ii < STARTING_ROW.length; ii++) {
-            chessBoardSquares[ii][0].setIcon(new ImageIcon(
-                    chessPieceImages[BLACK][STARTING_ROW[ii]]));
+        // Set up the black pieces.
+        for (int i = 0; i < STARTING_ROW.length; i++) {
+            chessBoardSquares[i][0].setIcon(new ImageIcon(
+                    chessPieceImages[BLACK][STARTING_ROW[i]]));
         }
-        for (int ii = 0; ii < STARTING_ROW.length; ii++) {
-            chessBoardSquares[ii][1].setIcon(new ImageIcon(
+        for (int i = 0; i < STARTING_ROW.length; i++) {
+            chessBoardSquares[i][1].setIcon(new ImageIcon(
                     chessPieceImages[BLACK][PAWN]));
         }
-        // set up the white pieces
-        for (int ii = 0; ii < STARTING_ROW.length; ii++) {
-            chessBoardSquares[ii][6].setIcon(new ImageIcon(
+        // Set up the white pieces.
+        for (int i = 0; i < STARTING_ROW.length; i++) {
+            chessBoardSquares[i][6].setIcon(new ImageIcon(
                     chessPieceImages[WHITE][PAWN]));
         }
-        for (int ii = 0; ii < STARTING_ROW.length; ii++) {
-            chessBoardSquares[ii][7].setIcon(new ImageIcon(
-                    chessPieceImages[WHITE][STARTING_ROW[ii]]));
+        for (int i = 0; i < STARTING_ROW.length; i++) {
+            chessBoardSquares[i][7].setIcon(new ImageIcon(
+                    chessPieceImages[WHITE][STARTING_ROW[i]]));
         }
 	}
 	
 	private final void startKnightsTour() {
-		
+		// The CLI started with the knight at 8A, which has been indexed as 0,
+		// 0. Alas, when in Rome... Otherwise see
+		// https://en.wikipedia.org/wiki/Chess and
+		// https://en.wikipedia.org/wiki/Rules_of_chess.
+		message.setText("The Knight is ready to tour!");
+		chessBoardSquares[0][0].setIcon(new ImageIcon(
+				chessPieceImages[BLACK][STARTING_ROW[1]]));
 	}
 }

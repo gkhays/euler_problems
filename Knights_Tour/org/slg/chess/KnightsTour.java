@@ -1,5 +1,7 @@
 package org.slg.chess;
 
+import java.awt.Point;
+
 public class KnightsTour {
 
 	private int N = 8;
@@ -17,20 +19,41 @@ public class KnightsTour {
         chessBoardArray[0][0] = 0;
 	}
 
+	public Point nextMove(int x, int y, int moveNumber) {
+		int next_x;
+		int next_y;
+		Point point = null; // TODO: Is it really good manners to return null?
+							// Or should we return (0, 0) or (-1, -1)?
+
+		for (int i = 0; i < N; i++) {
+			next_x = x + xKnightMoves[i];
+			next_y = y + yKnightMoves[i];
+			if (can_move(next_x, next_y)) {
+				chessBoardArray[next_x][next_y] = moveNumber;
+				point = new Point(next_x, next_y);
+				break;
+			}
+		}
+		return point;
+	}
+	
 	public void run() {
-		if (walk_board(0, 0, 1, chessBoardArray, xKnightMoves, yKnightMoves) == false) {
+		if (walk_board(0, 0, 1) == false) {
 			System.out.print("no solution.\n");
 		} else {
 			print_board();
 		}
 	}
 
-	private boolean can_move(int x, int y, int[][] a) {
-		return (x >= 0 && x < N && y >= 0 && y < N && a[x][y] == -1);
+	private boolean can_move(int x, int y) {
+		return ((x >= 0) 
+				&& (x < N) 
+				&& (y >= 0) 
+				&& (y < N) 
+				&& (chessBoardArray[x][y] == -1));
 	}
 
-	private boolean walk_board(int x, int y, int m, int[][] a, int[] xm,
-			int[] ym) {
+	private boolean walk_board(int x, int y, int m) {
 		int next_x;
 		int next_y;
 
@@ -39,14 +62,14 @@ public class KnightsTour {
 		}
 
 		for (int i = 0; i < N; i++) {
-			next_x = x + xm[i];
-			next_y = y + ym[i];
-			if (can_move(next_x, next_y, a)) {
-				a[next_x][next_y] = m;
-				if (walk_board(next_x, next_y, m + 1, a, xm, ym) == true) {
+			next_x = x + xKnightMoves[i];
+			next_y = y + yKnightMoves[i];
+			if (can_move(next_x, next_y)) {
+				chessBoardArray[next_x][next_y] = m;
+				if (walk_board(next_x, next_y, m + 1) == true) {
 					return true;
 				} else {
-					a[next_x][next_y] = -1;
+					chessBoardArray[next_x][next_y] = -1;
 				}
 			}
 		}

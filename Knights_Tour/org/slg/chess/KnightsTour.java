@@ -24,17 +24,31 @@ public class KnightsTour {
 		int next_y;
 		Point point = null; // TODO: Is it really good manners to return null?
 							// Or should we return (0, 0) or (-1, -1)?
-
+		
 		for (int i = 0; i < N; i++) {
 			next_x = x + xKnightMoves[i];
 			next_y = y + yKnightMoves[i];
 			if (can_move(next_x, next_y)) {
 				chessBoardArray[next_x][next_y] = moveNumber;
-				point = new Point(next_x, next_y);
+				point = new Point(next_x, next_y);				
 				break;
+			} else {
+				System.out.printf("Can't move to (%d, %d)\n", next_x, next_y);
 			}
 		}
 		return point;
+	}
+	
+	/**
+	 * This method is totally hacky since it shouldn't be the duty of the caller
+	 * to fix our internal problems. However, we need to solve the problem
+	 * first, then make it pretty.
+	 * 
+	 * @param nextX
+	 * @param nextY
+	 */
+	public void setNextPointAsNegative(int nextX, int nextY) {
+		chessBoardArray[nextX][nextY] = -1;
 	}
 	
 	public void run() {
@@ -46,10 +60,8 @@ public class KnightsTour {
 	}
 
 	private boolean can_move(int x, int y) {
-		return ((x >= 0) 
-				&& (x < N) 
-				&& (y >= 0) 
-				&& (y < N) 
+		return ((x >= 0) && (x < N) 
+				&& (y >= 0) && (y < N) 
 				&& (chessBoardArray[x][y] == -1));
 	}
 

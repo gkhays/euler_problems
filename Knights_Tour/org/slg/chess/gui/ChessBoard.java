@@ -152,17 +152,23 @@ public class ChessBoard {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				Point p = kt.nextMove(x, y, moveNumber);
-				// TODO: walk_board is recursive for a reason... We get 32 moves then crash.
-				int xIndex = new Double(p.getX()).intValue();
-				int yIndex = new Double(p.getY()).intValue();
-				message.setText(String.format(
-						"The Knight moved to (%d, %d). Move #%d.", xIndex,
-						yIndex, moveNumber));
-				chessBoardSquares[xIndex][yIndex].setIcon(new ImageIcon(
-						chessPieceImages[BLACK][STARTING_ROW[1]]));
-				moveNumber++;
-				x = xIndex;
-				y = yIndex;
+				// TODO: walk_board is recursive for a reason... We get 35 moves
+				// then crash on 36. I see, we are hitting the condition when a
+				// null is returned for the point.
+				if (p == null) {
+					kt.setNextPointAsNegative(x, y);
+				} else {
+					int xIndex = new Double(p.getX()).intValue();
+					int yIndex = new Double(p.getY()).intValue();
+					message.setText(String.format(
+							"The Knight moved to (%d, %d). Move #%d.", xIndex,
+							yIndex, moveNumber));
+					chessBoardSquares[xIndex][yIndex].setIcon(new ImageIcon(
+							chessPieceImages[BLACK][STARTING_ROW[1]]));
+					moveNumber++;
+					x = xIndex;
+					y = yIndex;
+				}
 			}
         };
         Action exitAction = new AbstractAction("Exit") {

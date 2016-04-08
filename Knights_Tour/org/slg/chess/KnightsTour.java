@@ -1,3 +1,4 @@
+package org.slg.chess;
 public class KnightsTour {
 
     public static int N = 8;
@@ -22,28 +23,29 @@ public class KnightsTour {
         return(x>=0 && x<N && y>=0 && y<N && a[x][y] == -1);
     }
 
-    public static boolean walk_board(int x, int y, int m, int[][] a, int[] xm, int[] ym) {
-        int next_x;
-        int next_y; 
+	public static boolean walk_board(int x, int y, int m, int[][] a, int[] xm,
+			int[] ym) {
+		int next_x;
+		int next_y;
 
-        if (m == N*N) {
-            return true;
-        }
+		if (m == N * N) {
+			return true;
+		}
 
-        for (int i=0; i<N; i++) {
-            next_x = x + xm[i];
-            next_y = y + ym[i];
-            if (can_move(next_x, next_y, a)) {
-                a[next_x][next_y] = m;
-                if (walk_board(next_x, next_y, m+1, a, xm, ym) == true) {
-                    return true;
-                } else {
-                    a[next_x][next_y] = -1;
-                }
-            }
-        }
-        return false;
-    }
+		for (int i = 0; i < N; i++) {
+			next_x = x + xm[i];
+			next_y = y + ym[i];
+			if (can_move(next_x, next_y, a)) {
+				a[next_x][next_y] = m;
+				if (walk_board(next_x, next_y, m + 1, a, xm, ym) == true) {
+					return true;
+				} else {
+					a[next_x][next_y] = -1;
+				}
+			}
+		}
+		return false;
+	}
 
     public static void print_board() {
         for (int i=0; i<N; i++) {

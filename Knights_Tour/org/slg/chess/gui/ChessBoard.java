@@ -54,12 +54,15 @@ public class ChessBoard {
 				f.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 				f.setLocationByPlatform(true);
 
-				// ensures the frame is the minimum size it needs to be
-				// in order display the components within it
+				// Ensures the frame is the minimum size it needs to be
+				// in order display the components within it.
 				f.pack();
-				// ensures the minimum size is enforced.
+				
+				// Ensures the minimum size is enforced.
 				f.setMinimumSize(f.getSize());
 				f.setVisible(true);
+				
+				// TODO: Does the frame really need to be resizable?
             }
         };
         SwingUtilities.invokeLater(r);
@@ -94,9 +97,9 @@ public class ChessBoard {
 	private void initialize() {
 		createImages();
 		
-		chessPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
 		JToolBar tools = new JToolBar();
 		tools.setFloatable(false);
+		chessPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
 		chessPanel.add(tools, BorderLayout.PAGE_START);
 		
 		// TODO: Provide a single implemented action handler instead of multiple
@@ -124,7 +127,6 @@ public class ChessBoard {
         tools.add(startAction);
         tools.add(exitAction);
 		tools.addSeparator();
-		//tools.add(new JButton("Exit"));
 		tools.addSeparator();
 		tools.add(message);
 
@@ -142,14 +144,16 @@ public class ChessBoard {
 					SwingConstants.CENTER));
 		}
 
-		for (int ii = 0; ii < 8; ii++) {
-			for (int jj = 0; jj < 8; jj++) {
-				switch (jj) {
+		// By convention, numbering should start from the bottom or white side
+		// of the board. So 8 - i instead of i + 1 as we go through the loop.
+		for (int i = 0; i < 8; i++) {
+			for (int j = 0; j < 8; j++) {
+				switch (j) {
 				case 0:
-					chessBoard.add(new JLabel("" + (ii + 1),
+					chessBoard.add(new JLabel("" + (8 - i),
 							SwingConstants.CENTER));
 				default:
-					chessBoard.add(chessBoardSquares[jj][ii]);
+					chessBoard.add(chessBoardSquares[j][i]);
 				}
 			}
 		}

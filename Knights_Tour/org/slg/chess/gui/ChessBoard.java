@@ -176,8 +176,9 @@ public class ChessBoard {
         };
 		
         tools.add(startAction);
-        tools.add(resetAction);
         tools.add(nextAction);
+		tools.addSeparator();
+        tools.add(resetAction);
 		tools.addSeparator();
         tools.add(exitAction);
 		tools.addSeparator();

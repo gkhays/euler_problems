@@ -1,29 +1,35 @@
 package org.slg.chess;
+
 public class KnightsTour {
 
-    public static int N = 8;
-
-    public static int[][] ar  = new int[8][8];
-
-    static int[] xm = { 2, 1, -1, -2, -2, -1,  1,  2 };
-    static int[] ym = { 1, 2,  2,  1, -1, -2, -2, -1 };
-
+	private int N = 8;
+	private int[][] chessBoardArray = new int[8][8];
+	private int[] xKnightMoves = { 2, 1, -1, -2, -2, -1, 1, 2 };
+	private int[] yKnightMoves = { 1, 2, 2, 1, -1, -2, -2, -1 };
+	
     public static void main(String[] args) {
-
-        initialize_board(ar);
-        ar[0][0] = 0;
-        if (walk_board(0, 0, 1, ar, xm, ym) == false) {
-            System.out.print("no solution.\n"); 
-        } else {
-            print_board();
-        }
+    	KnightsTour tour = new KnightsTour();
+        tour.run();        
     }
+	
+	public KnightsTour() {
+		initialize_board();
+        chessBoardArray[0][0] = 0;
+	}
 
-    public static boolean can_move(int x, int y, int[][] a) {
-        return(x>=0 && x<N && y>=0 && y<N && a[x][y] == -1);
-    }
+	public void run() {
+		if (walk_board(0, 0, 1, chessBoardArray, xKnightMoves, yKnightMoves) == false) {
+			System.out.print("no solution.\n");
+		} else {
+			print_board();
+		}
+	}
 
-	public static boolean walk_board(int x, int y, int m, int[][] a, int[] xm,
+	private boolean can_move(int x, int y, int[][] a) {
+		return (x >= 0 && x < N && y >= 0 && y < N && a[x][y] == -1);
+	}
+
+	private boolean walk_board(int x, int y, int m, int[][] a, int[] xm,
 			int[] ym) {
 		int next_x;
 		int next_y;
@@ -47,22 +53,22 @@ public class KnightsTour {
 		return false;
 	}
 
-    public static void print_board() {
-        for (int i=0; i<N; i++) {
-            for (int j=0; j<N; j++) {
-                System.out.printf("%3d", ar[i][j]);
-            }
-            System.out.println(); 
-        }
-    }
+	private void print_board() {
+		for (int i = 0; i < N; i++) {
+			for (int j = 0; j < N; j++) {
+				System.out.printf("%3d", chessBoardArray[i][j]);
+			}
+			System.out.println();
+		}
+	}
 
-    public static void initialize_board(int[][] ar) {
-        for (int i=0; i<N; i++) {
-            for (int j=0; j<N; j++) {
-                ar[i][j] = -1;
-            }
-        }
-    }
+	private void initialize_board() {
+		for (int i = 0; i < N; i++) {
+			for (int j = 0; j < N; j++) {
+				chessBoardArray[i][j] = -1;
+			}
+		}
+	}
 }
 
 

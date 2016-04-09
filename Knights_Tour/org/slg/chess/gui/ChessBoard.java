@@ -146,7 +146,7 @@ public class ChessBoard {
 		nextButton = new JButton(nextAction);
 		nextButton.setEnabled(false);
 		
-		timer = new Timer(200, new ActionListener() {
+		timer = new Timer(150, new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				nextButton.doClick();
@@ -174,6 +174,7 @@ public class ChessBoard {
 					for (int j = 0; j < chessBoardSquares[i].length; j++) {
 						b = chessBoardSquares[i][j];
 						b.setIcon(null);
+						b.setText(null);
 						if (((j % 2 == 1) && (i % 2 == 1))
 								|| ((j % 2 == 0) && (i % 2 == 0))) {
 							b.setBackground(Color.WHITE);
@@ -308,10 +309,13 @@ public class ChessBoard {
 			if (moveNumber > 1) {
 				chessBoardSquares[lastX][lastY].setIcon(null);
 				chessBoardSquares[lastX][lastY].setBackground(Color.GREEN);
+				chessBoardSquares[lastX][lastY].setText(String.valueOf(moveNumber));
+				
 			}
 			
 			if (moveNumber == 64) {
-				this.setEnabled(false);
+				this.setEnabled(false); 		// TODO: Should disable next button...
+				nextButton.setEnabled(false);	// But had to add this.
 				timer.stop();
 				message.setText("The Knight has completed the tour.");
 			}

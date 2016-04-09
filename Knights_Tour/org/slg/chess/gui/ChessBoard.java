@@ -40,11 +40,15 @@ public class ChessBoard {
     private static final String COLS = "ABCDEFGH";
     
 	private final JPanel chessPanel = new JPanel(new BorderLayout(3, 3));
+    private final JLabel message = new JLabel(
+            "The board is ready.");
+    
     private JButton[][] chessBoardSquares = new JButton[8][8];
     private Image[][] chessPieceImages = new Image[2][6];
     private JPanel chessBoard;
-    private final JLabel message = new JLabel(
-            "The board is ready.");    
+    private JButton nextButton;
+    private Action nextAction;
+    private Action startAction;
     
     private int lastX, lastY;
     private int moveNumber = 1;
@@ -72,6 +76,7 @@ public class ChessBoard {
 				f.setVisible(true);
 				
 				// TODO: Does the frame really need to be resizable?
+				//f.setResizable(false);
             }
         };
         SwingUtilities.invokeLater(r);
@@ -116,7 +121,7 @@ public class ChessBoard {
 		
 		// TODO: Provide a single implemented action handler instead of multiple
 		// anonymous, inner ones.
-		Action startAction = new AbstractAction("Start") {			
+		startAction = new AbstractAction("Start") {			
 			private static final long serialVersionUID = 1L;
 
 			@Override
@@ -124,9 +129,16 @@ public class ChessBoard {
             	//placeAllStartingPieces();
 				startKnightsTour();
 				results = kt.run(true);
+				nextButton.setEnabled(true);
+				this.setEnabled(false);
             }
         };
-		Action resetAction = new AbstractAction("Reset") {
+        
+		nextAction = new NextAction("Next");
+		nextButton = new JButton(nextAction);
+		nextButton.setEnabled(false);
+		
+        Action resetAction = new AbstractAction("Reset") {
 			private static final long serialVersionUID = 1L;
 
 			@Override
@@ -144,37 +156,13 @@ public class ChessBoard {
 						}
 					}
 				}
-				
-				message.setText("Ready to go.");
-			}
-		};
-        Action nextAction = new AbstractAction("Next") {
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				if (moveNumber > 1) {
-					chessBoardSquares[lastX][lastY].setIcon(null);
-					chessBoardSquares[lastX][lastY].setBackground(Color.GREEN);
-				}
-				
-				for (int i = 0; i < KnightsTour.N; i++) {
-					for (int j = 0; j < KnightsTour.N; j++) {
-						if (results[i][j] == moveNumber) {
-							message.setText(String.format(
-									"The Knight moved to (%d, %d). Move #%d.",
-									i, j, moveNumber));
-							chessBoardSquares[i][j].setIcon(new ImageIcon(
-									chessPieceImages[BLACK][STARTING_ROW[1]]));
-							lastX = i;
-							lastY = j;
-							break;
-						}
-					}
-				}
-				moveNumber++;
+				nextButton.setEnabled(false);
+				startAction.setEnabled(true);
+				moveNumber = 1;
+				message.setText("Ready to go.");			
 			}
         };
+        
         Action exitAction = new AbstractAction("Exit") {
 			private static final long serialVersionUID = 1L;
 
@@ -186,7 +174,7 @@ public class ChessBoard {
         };
 		
         tools.add(startAction);
-        tools.add(nextAction);
+        tools.add(nextButton);
 		tools.addSeparator();
         tools.add(resetAction);
 		tools.addSeparator();
@@ -279,5 +267,42 @@ public class ChessBoard {
 		message.setText("The Knight is ready to tour!");
 		chessBoardSquares[0][0].setIcon(new ImageIcon(
 				chessPieceImages[BLACK][STARTING_ROW[1]]));
+	}
+
+	class NextAction extends AbstractAction {
+		private static final long serialVersionUID = 1L;
+
+		NextAction(String text) {
+			super(text);
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			if (moveNumber > 1) {
+				chessBoardSquares[lastX][lastY].setIcon(null);
+				chessBoardSquares[lastX][lastY].setBackground(Color.GREEN);
+			}
+			
+			if (moveNumber == 64) {
+				this.setEnabled(false);
+				message.setText("The Knight has completed the tour.");
+			}
+			
+			for (int i = 0; i < KnightsTour.N; i++) {
+				for (int j = 0; j < KnightsTour.N; j++) {
+					if (results[i][j] == moveNumber) {
+						message.setText(String.format(
+								"The Knight moved to (%d, %d). Move #%d.",
+								i, j, moveNumber));
+						chessBoardSquares[i][j].setIcon(new ImageIcon(
+								chessPieceImages[BLACK][STARTING_ROW[1]]));
+						lastX = i;
+						lastY = j;
+						break;
+					}
+				}
+			}
+			moveNumber++;
+		}
 	}
 }

@@ -1,7 +1,5 @@
 package org.slg.chess;
 
-import java.awt.Point;
-
 public class KnightsTour {
 
 	public static final int N = 8;

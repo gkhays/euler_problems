@@ -131,20 +131,21 @@ public class ChessBoard {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				// TODO: This isn't clearing the chess board. :(
-				System.out.println("Should be clearing the board...");
-				fillBoard();
-				// JButton b = new JButton();
-				// b.setBackground(Color.WHITE);
-				// b.setIcon(new ImageIcon(new BufferedImage(64, 64,
-				// BufferedImage.TYPE_INT_ARGB)));
-				// chessBoardSquares[0][0] = b;
-				//chessBoard.add(chessBoardSquares[0][0]);
+				JButton b;
+				for (int i = 0; i < chessBoardSquares.length; i++) {
+					for (int j = 0; j < chessBoardSquares[i].length; j++) {
+						b = chessBoardSquares[i][j];
+						b.setIcon(null);
+						if (((j % 2 == 1) && (i % 2 == 1))
+								|| ((j % 2 == 0) && (i % 2 == 0))) {
+							b.setBackground(Color.WHITE);
+						} else {
+							b.setBackground(Color.BLACK);
+						}
+					}
+				}
+				
 				message.setText("Ready to go.");
-				chessBoardSquares[0][0].setIcon(new ImageIcon(
-						chessPieceImages[BLACK][STARTING_ROW[0]]));
-				chessBoard.revalidate();
-				chessBoard.repaint();
 			}
 		};
         Action nextAction = new AbstractAction("Next") {

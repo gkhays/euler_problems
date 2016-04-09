@@ -6,6 +6,7 @@ import java.awt.GridLayout;
 import java.awt.Image;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.io.InputStream;
 
@@ -21,6 +22,7 @@ import javax.swing.JPanel;
 import javax.swing.JToolBar;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
+import javax.swing.Timer;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 
@@ -47,12 +49,14 @@ public class ChessBoard {
     private Image[][] chessPieceImages = new Image[2][6];
     private JPanel chessBoard;
     private JButton nextButton;
+    private Action autoAction;
     private Action nextAction;
     private Action startAction;
     
     private int lastX, lastY;
     private int moveNumber = 1;
     private int[][] results;
+    private Timer timer;
     private KnightsTour kt = new KnightsTour();
     
 	public static void main(String[] args) {
@@ -130,13 +134,35 @@ public class ChessBoard {
 				startKnightsTour();
 				results = kt.run(true);
 				nextButton.setEnabled(true);
+				autoAction.setEnabled(true);
 				this.setEnabled(false);
+				if (timer.isRunning()) {
+					timer.stop();
+				}
             }
         };
         
 		nextAction = new NextAction("Next");
 		nextButton = new JButton(nextAction);
 		nextButton.setEnabled(false);
+		
+		timer = new Timer(200, new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				nextButton.doClick();
+			}
+		});
+		
+		autoAction = new AbstractAction("Auto") {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				this.setEnabled(false);
+				timer.start();
+			}			
+		};
+		autoAction.setEnabled(false);
 		
         Action resetAction = new AbstractAction("Reset") {
 			private static final long serialVersionUID = 1L;
@@ -175,6 +201,7 @@ public class ChessBoard {
 		
         tools.add(startAction);
         tools.add(nextButton);
+        tools.add(autoAction);
 		tools.addSeparator();
         tools.add(resetAction);
 		tools.addSeparator();
@@ -285,6 +312,7 @@ public class ChessBoard {
 			
 			if (moveNumber == 64) {
 				this.setEnabled(false);
+				timer.stop();
 				message.setText("The Knight has completed the tour.");
 			}
 			

@@ -23,6 +23,8 @@ import javax.swing.JToolBar;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.Timer;
+import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 
@@ -116,6 +118,25 @@ public class ChessBoard {
 	}
 	
 	private void initialize() {
+		// When running under OS X, Swing attempts to use the Aqua Look and Feel
+		// by default. Unfortunately for us, the components we use don't support
+		// background colors with Aqua.
+		// See: 
+		// https://developer.apple.com/library/mac/documentation/Java/Conceptual/Java14Development/04-JavaUIToolkits/JavaUIToolkits.html.
+		try {
+			// Equivalent to: 
+			// -Dswing.defaultlaf=javax.swing.plaf.metal.MetalLookAndFeel
+			// - or -
+			// UIManager.setLookAndFeel("javax.swing.plaf.metal.MetalLookAndFeel");
+			UIManager.setLookAndFeel(UIManager
+					.getCrossPlatformLookAndFeelClassName());
+		} catch (ClassNotFoundException | InstantiationException
+				| IllegalAccessException
+				| UnsupportedLookAndFeelException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 		createImages();
 		
 		JToolBar tools = new JToolBar();

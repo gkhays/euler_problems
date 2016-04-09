@@ -5,7 +5,6 @@ import java.awt.Color;
 import java.awt.GridLayout;
 import java.awt.Image;
 import java.awt.Insets;
-import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.image.BufferedImage;
 import java.io.InputStream;
@@ -45,10 +44,11 @@ public class ChessBoard {
     private Image[][] chessPieceImages = new Image[2][6];
     private JPanel chessBoard;
     private final JLabel message = new JLabel(
-            "The board is ready.");
+            "The board is ready.");    
     
-    private int x = 0, y = 0;
+    private int lastX, lastY;
     private int moveNumber = 1;
+    private int[][] results;
     private KnightsTour kt = new KnightsTour();
     
 	public static void main(String[] args) {
@@ -123,6 +123,7 @@ public class ChessBoard {
             public void actionPerformed(ActionEvent e) {
             	//placeAllStartingPieces();
 				startKnightsTour();
+				results = kt.run(true);
             }
         };
 		Action resetAction = new AbstractAction("Reset") {
@@ -151,24 +152,26 @@ public class ChessBoard {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				Point p = kt.nextMove(x, y, moveNumber);
-				// TODO: walk_board is recursive for a reason... We get 35 moves
-				// then crash on 36. I see, we are hitting the condition when a
-				// null is returned for the point.
-				if (p == null) {
-					kt.setNextPointAsNegative(x, y);
-				} else {
-					int xIndex = new Double(p.getX()).intValue();
-					int yIndex = new Double(p.getY()).intValue();
-					message.setText(String.format(
-							"The Knight moved to (%d, %d). Move #%d.", xIndex,
-							yIndex, moveNumber));
-					chessBoardSquares[xIndex][yIndex].setIcon(new ImageIcon(
-							chessPieceImages[BLACK][STARTING_ROW[1]]));
-					moveNumber++;
-					x = xIndex;
-					y = yIndex;
+				if (moveNumber > 1) {
+					chessBoardSquares[lastX][lastY].setIcon(null);
+					chessBoardSquares[lastX][lastY].setBackground(Color.GREEN);
 				}
+				
+				for (int i = 0; i < KnightsTour.N; i++) {
+					for (int j = 0; j < KnightsTour.N; j++) {
+						if (results[i][j] == moveNumber) {
+							message.setText(String.format(
+									"The Knight moved to (%d, %d). Move #%d.",
+									i, j, moveNumber));
+							chessBoardSquares[i][j].setIcon(new ImageIcon(
+									chessPieceImages[BLACK][STARTING_ROW[1]]));
+							lastX = i;
+							lastY = j;
+							break;
+						}
+					}
+				}
+				moveNumber++;
 			}
         };
         Action exitAction = new AbstractAction("Exit") {
